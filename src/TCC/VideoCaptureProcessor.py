@@ -4,18 +4,18 @@ from datetime import datetime
 
 def captcore(vidObj, outPth, *args):
     # parameters check (existence)
-    if len(args) < 3:
+    if len(args) < 4:
         print('captcore: wrong number of arguments!\n\n')
         return 1
     else:
-        if isinstance(args[0], str):
-            filPtt = args[0]
-            imgFst = args[1]
-            imgLst = args[2]
+        if isinstance(args[1], str):
+            filPtt = args[1]
+            imgFst = args[2]
+            imgLst = args[3]
             auxArg = 4
         else:
-            imgFst = args[0]
-            imgLst = args[1]
+            imgFst = args[1]
+            imgLst = args[2]
             auxArg = 3
 
         for idxArg in range(auxArg, len(args)):
@@ -25,16 +25,16 @@ def captcore(vidObj, outPth, *args):
                 regItr = args[idxArg]
 
     # internal parameters (first ones)
-    vidGen = vidObj.get(cv2.CAP_PROP_POS_MSEC) # general information
+    vidGen = vidObj.get(cv2.CAP_PROP_BACKEND) # general information
     vidRes = (int(vidObj.get(cv2.CAP_PROP_FRAME_WIDTH)), int(vidObj.get(cv2.CAP_PROP_FRAME_HEIGHT))) # resolution
     vidFps = vidObj.get(cv2.CAP_PROP_FPS) # frames per second
 
     # not supplied parameters (providing default values)
-    if not 'filPtt' in locals():
+    if 'filPtt' not in locals():
         filPtt = 'Img%03d.bmp'
-    if not 'grbItv' in locals():
+    if 'grbItv' not in locals():
         grbItv = 1
-    if not 'regItr' in locals():
+    if 'regItr' not in locals():
         regItr = [0, 0, vidRes[0], vidRes[1]]
 
     # parameters check (consistency)
@@ -44,15 +44,15 @@ def captcore(vidObj, outPth, *args):
     if any(val < 0 for val in regItr[:4]):
         print('captcore: region of interest is not consistent!\n\n')
         return 3
-    if any(sum(regItr[:2], regItr[2:]) > vidRes):
+    if any((regItr[0] + regItr[2], regItr[1] + regItr[3]) > vidRes):
         print('captcore: region of interest is not compatible with video resolution!\n\n')
         return 4
     
     # output directory creation (if necessary)
-    if outPth[-1] != '/':
-        outPth += '/'
-    if not os.path.exists(outPth):
-        os.makedirs(outPth)
+    if not OutPth.endswith('/'):
+        OutPth += '/'
+    if not os.path.exists(OutPth):
+        os.makedirs(OutPth)
 
 # internal parameters (last ones)
     imgNum = imgLst - imgFst + 1 # number of images
@@ -61,7 +61,15 @@ def captcore(vidObj, outPth, *args):
     pthPtt = outPth.replace('\\', '\\\\') + filPtt # output file name pattern (including the file path)
 
 # acquisition configuration
-    vidObj.set(cv2.CAP_PROP_POS_FRAMES, imgFst)
+    vidObj.set(cv2.CAP_PROP_FPS, grbItv)
+    vidObj.set(cv2.CAP_PROP_FRAME_COUNT, imgNum)
+    vidObj.set(cv2.CAP_PROP_CONVERT_RGB, False)
+    vidObj.set(cv2.CAP_PROP_FRAME_WIDTH, regItr[0])
+    vidObj.set(cv2.CAP_PROP_FRAME_HEIGHT, regItr[1])
+    vidObj.set(cv2.CAP_PROP_POS_X, regItr[2])
+    vidObj.set(cv2.CAP_PROP_POS_Y, regItr[3])
+    vidObj.set(cv2.CAP_PROP_FPS, tmeOut)
+
 
 
 # image acquisition
@@ -95,11 +103,6 @@ def captcore(vidObj, outPth, *args):
         filIdt.write(f'\t\t* VrtLen: {regItr[3]}\n')
         filIdt.write(f'\t* Frame Grab Interval: first of every {grbItv} frame(s)\n')
         filIdt.write(f'\t\t* Thus, the sampling time was {smpTme} seconds\n\n')
-
-        filIdt.write('Camera specific configuration (at the acquisition time):\n')
-        for prop in vidObj.getBackendName():
-            prop_val = vidObj.get(prop)
-            filIdt.write(f'\t* {prop}: {prop_val}\n')
     
     # error code
     return 0  # no error

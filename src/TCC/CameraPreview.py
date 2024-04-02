@@ -21,3 +21,4 @@ camera.release()
 
 # Destruição de todas as janelas
 cv2.destroyAllWindows()
+
