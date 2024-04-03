@@ -1,10 +1,54 @@
+# Importação das bibliotecas necessárias
 import cv2
-import os
-from datetime import datetime
+from VideoCaptureProcessor import VidCapPro
 
-class VidCapPro:
-    def captcore(self, vidObj, outPth, *args):
+
+
+
+
+
+
+
+
+def captcore(vidObj, outPth, *args):
         # parameters check (existence)
+
+        # Inicialização da variável para capturar a webcam
+        vidObj = cv2.VideoCapture(0) # Escolha a câmera pelo índice
+
+        # Loop para captura e exibição de frames
+        while True:
+            # Leitura de um frame
+            ret, frame = vidObj.read()
+
+            # Exibição do frame
+            cv2.imshow('Preview', frame)
+
+            # Verificação da tecla 'q' para sair
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        # Liberação da captura da webcam
+        vidObj.release()
+
+        # Destruição de todas as janelas
+        cv2.destroyAllWindows()
+
+
+
+
+
+        outPth = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints'
+        filPtt = 'Img%03d.bmp'
+        imgFst = 1
+        imgLst = 5
+        grbItv = 1
+        regItr = [0, 0, 640, 480]
+
+        vidCapPro = VidCapPro()
+        vidCapPro.captcore(outPth, filPtt, imgFst, imgLst, grbItv, regItr)
+
+
         if len(args) < 4:
             print('captcore: wrong number of arguments!\n\n')
             return 1
