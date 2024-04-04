@@ -1,6 +1,5 @@
 # Importação das bibliotecas necessárias
 import cv2
-from VideoCaptureProcessor import VidCapPro
 
 class Main:
     # Inicialização da variável para capturar a webcam
