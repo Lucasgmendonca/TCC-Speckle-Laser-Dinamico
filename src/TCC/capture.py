@@ -2,35 +2,35 @@ import cv2
 import os
 from datetime import datetime
 
-def capture_images(VidObj, OutPth, GrbItv, RegItr, FilPtt='Img%03d.bmp', ImgFst=1, ImgLst=10):
+def capture_images(videoInputObject, outputPath, frameGrabInterval, regionOfInterest, fileName, firstImageNumber, lastImageNumber):
     # Parâmetros internos
-    VidFps = VidObj.get(cv2.CAP_PROP_FPS)
-    VidRes = (int(VidObj.get(cv2.CAP_PROP_FRAME_WIDTH)), int(VidObj.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    ImgNum = ImgLst - ImgFst + 1
-    SmpTme = 1 / (VidFps / GrbItv)
+    VidFps = videoInputObject.get(cv2.CAP_PROP_FPS)
+    VidRes = (int(videoInputObject.get(cv2.CAP_PROP_FRAME_WIDTH)), int(videoInputObject.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    ImgNum = lastImageNumber - firstImageNumber + 1
+    SmpTme = 1 / (VidFps / frameGrabInterval)
     TmeOut = 20 * ImgNum * SmpTme
-    PthPtt = os.path.join(OutPth, FilPtt)
+    PthPtt = os.path.join(outputPath, fileName)
 
     # Configuração da captura
-    VidObj.set(cv2.CAP_PROP_FPS, GrbItv)
-    VidObj.set(cv2.CAP_PROP_FRAME_WIDTH, RegItr[2])
-    VidObj.set(cv2.CAP_PROP_FRAME_HEIGHT, RegItr[3])
+    videoInputObject.set(cv2.CAP_PROP_FPS, frameGrabInterval)
+    videoInputObject.set(cv2.CAP_PROP_FRAME_WIDTH, regionOfInterest[2])
+    videoInputObject.set(cv2.CAP_PROP_FRAME_HEIGHT, regionOfInterest[3])
 
     # Captura de imagens
     print('captcore: aquisição iniciada, aguarde!')
     imgs = []
     for _ in range(ImgNum):
-        ret, frame = VidObj.read()
+        ret, frame = videoInputObject.read()
         imgs.append(frame)
     print('captcore: aquisição concluída, salvando as imagens!')
 
     # Salvando imagens
     for idx, img in enumerate(imgs):
-        filnme = PthPtt % (idx + ImgFst)
+        filnme = PthPtt % (idx + firstImageNumber)
         cv2.imwrite(filnme, img)
 
     # Criação do arquivo de informações
-    with open(os.path.join(OutPth, 'info.txt'), 'w') as filidt:
+    with open(os.path.join(outputPath, 'info.txt'), 'w') as filidt:
         # Informações da câmera
         filidt.write('Camera general information:\n')
         filidt.write(f'\t* Resolution: {VidRes[0]} x {VidRes[1]}\n')
@@ -40,15 +40,15 @@ def capture_images(VidObj, OutPth, GrbItv, RegItr, FilPtt='Img%03d.bmp', ImgFst=
         filidt.write('Acquisition information:\n')
         filidt.write(f'\t* Date and time: {datetime.now()}\n')
         filidt.write('\t* Region of interest:\n')
-        filidt.write(f'\t\t* HrzOff: {RegItr[0]}\n')
-        filidt.write(f'\t\t* VrtOff: {RegItr[1]}\n')
-        filidt.write(f'\t\t* HrzLen: {RegItr[2]}\n')
-        filidt.write(f'\t\t* VrtLen: {RegItr[3]}\n')
-        filidt.write(f'\t* Frame Grab Interval: first of every {GrbItv} frame(s)\n')
+        filidt.write(f'\t\t* HrzOff: {regionOfInterest[0]}\n')
+        filidt.write(f'\t\t* VrtOff: {regionOfInterest[1]}\n')
+        filidt.write(f'\t\t* HrzLen: {regionOfInterest[2]}\n')
+        filidt.write(f'\t\t* VrtLen: {regionOfInterest[3]}\n')
+        filidt.write(f'\t* Frame Grab Interval: first of every {frameGrabInterval} frame(s)\n')
         filidt.write(f'\t\t* Thus, the sampling time was {SmpTme} seconds\n\n')
         filidt.write('Camera specific configuration (at the acquisition time):\n')
         # Obter informações adicionais da câmera (se necessário)
         # Exemplo de obtenção de informações adicionais: VidObj.get(propriedade)
         # propriedade pode ser CAP_PROP_* (ver lista de propriedades em https://docs.opencv.org/4.x/d4/d15/group__videoio__flags__base.html)
     # Libera a captura de vídeo
-    VidObj.release()
+    videoInputObject.release()
