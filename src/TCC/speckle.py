@@ -45,6 +45,7 @@ class Capture:
 
     def capture_images(self):
         """Captura imagens da câmera."""
+
         # Parâmetros internos
         frames_per_second = self.video_input_object.get(cv2.CAP_PROP_FPS)
         video_resolution = (int(self.video_input_object.get(cv2.CAP_PROP_FRAME_WIDTH)), int(self.video_input_object.get(cv2.CAP_PROP_FRAME_HEIGHT)))
@@ -52,6 +53,14 @@ class Capture:
         sampling_time = 1 / (frames_per_second / self.frame_grab_interval)
         timeout = 20 * number_of_images * sampling_time
         full_file_path = os.path.join(self.output_path, self.file_name)
+
+        # Consistência de parâmetros
+        if not 1 <= self.frame_grab_interval <= 99: ### Inconsistente para qualquer valor menor que 1 ou maior que 99
+            raise ValueError('captcore: frame grab interval must be a scalar between 0 and 99!')
+        if any(val < 0 for val in self.region_of_interest[:4]): ### Inconsistente para quaisquer valores negativos para a posição ou deslocamento
+            raise ValueError('captcore: region of interest is not consistent!')
+        if any((val1 + val2) > res for val1, val2, res in zip(self.region_of_interest[:2], self.region_of_interest[2:], video_resolution)):
+            raise ValueError('captcore: region of interest is not compatible with video resolution!') ### Inconsistente se a soma da posição e do tamanho da região de interesse (horizontal ou vertical) 
 
         # Configuração da captura
         self.video_input_object.set(cv2.CAP_PROP_FPS, self.frame_grab_interval) ### Configura as propriedades do objeto de entrada de vídeo para o intervalo de captura de quadros.
