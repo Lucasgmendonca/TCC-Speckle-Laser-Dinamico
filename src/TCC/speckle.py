@@ -15,7 +15,8 @@ class Preview:
         """Abre uma janela para visualização da câmera."""
         while True:
             ret, frame = self.video_input_object.read() ### Lê um frame do vídeo capturado pela câmera e armazena-o nas variáveis ret (um booleano que indica se a leitura foi bem-sucedida) e frame (o próprio frame capturado).
-            cv2.imshow('Preview', frame) ### Exibe o frame capturado em uma janela com o título "Preview". A função imshow do OpenCV é usada para exibir imagens.
+            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            cv2.imshow('Preview', gray_frame) ### Exibe o frame capturado em uma janela com o título "Preview". A função imshow do OpenCV é usada para exibir imagens.
             if cv2.waitKey(1) & 0xFF == ord('q'): ### Aguarda 1 milissegundo por uma entrada do teclado. Se a tecla pressionada for 'q', o loop será interrompido e o programa será encerrado. A função waitKey retorna o código ASCII da tecla pressionada e o operador & é usado para mascarar os bits irrelevantes.
                 break
 
@@ -51,7 +52,6 @@ class Capture:
         video_resolution = (int(self.video_input_object.get(cv2.CAP_PROP_FRAME_WIDTH)), int(self.video_input_object.get(cv2.CAP_PROP_FRAME_HEIGHT)))
         number_of_images = self.last_image_number - self.first_image_number + 1
         sampling_time = 1 / (frames_per_second / self.frame_grab_interval)
-        timeout = 20 * number_of_images * sampling_time
         full_file_path = os.path.join(self.output_path, self.file_name)
 
         # Consistência de parâmetros
@@ -72,7 +72,8 @@ class Capture:
         captured_frames = []
         for _ in range(number_of_images):
             ret, frame = self.video_input_object.read() ### Lê um frame do vídeo capturado pela câmera e armazena-o nas variáveis ret (um booleano que indica se a leitura foi bem-sucedida) e frame (o próprio frame capturado).
-            captured_frames.append(frame) ### Após a leitura do frame, ele é adicionado à lista captured_frames usando o método append(). Isso significa que cada frame capturado será armazenado nesta lista.
+            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            captured_frames.append(gray_frame) ### Após a leitura do frame, ele é adicionado à lista captured_frames usando o método append(). Isso significa que cada frame capturado será armazenado nesta lista.
         print('captcore: acquisition completed, saving the images!')
 
         # Salvando imagens
@@ -96,7 +97,7 @@ class Capture:
             file_writer.write(f'\t\t* Horizontal Length: {self.region_of_interest[2]}\n')
             file_writer.write(f'\t\t* Vertical Length: {self.region_of_interest[3]}\n')
             file_writer.write(f'\t* Frame Grab Interval: first of every {self.frame_grab_interval} frame(s)\n')
-            file_writer.write(f'\t\t* Thus, the sampling time was {timeout} seconds\n\n')
+            file_writer.write(f'\t\t* Thus, the sampling time was {sampling_time} seconds\n\n')
             ### Lista de outras propriedades disponíveis em https://docs.opencv.org/4.x/d4/d15/group__videoio__flags__base.html
 
 class Main:
