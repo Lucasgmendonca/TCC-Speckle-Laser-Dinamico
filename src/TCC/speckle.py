@@ -1,6 +1,8 @@
 import cv2 ### Importa a biblioteca OpenCV, que é uma biblioteca popular de visão computacional.
 import os ### Importa o módulo 'os', que fornece funções para interagir com o sistema operacional, permitindo manipulação de caminhos de arquivos, diretórios, etc.
-from datetime import datetime ### Importa a classe datetime do módulo datetime, que permite trabalhar com datas e horários em Python.
+from datetime import datetime
+
+import numpy as np ### Importa a classe datetime do módulo datetime, que permite trabalhar com datas e horários em Python.
 
 class Preview:
     """Classe responsável por exibir uma pré-visualização da câmera."""
@@ -100,6 +102,98 @@ class Capture:
             file_writer.write(f'\t\t* Thus, the sampling time was {sampling_time} seconds\n\n')
             ### Lista de outras propriedades disponíveis em https://docs.opencv.org/4.x/d4/d15/group__videoio__flags__base.html
 
+class PixelHistory:
+    """Classe responsável por analisar e armazenar o histórico de pixels de uma série de imagens."""
+
+    def __init__(self, image_path, image_pattern, first_image_number, last_image_number, pixel_selection, selection_specifier=None):
+        """
+        Inicializa a classe PixelHistory.
+
+        Args:
+            image_path: Caminho para a pasta onde as imagens estão armazenadas.
+            image_pattern: Padrão de nome dos arquivos de imagem.
+            first_image_number: Número da primeira imagem a ser considerada.
+            last_image_number: Número da última imagem a ser considerada.
+            pixel_selection: Modo de seleção de pixels ('a', 'h', 'v', 'r').
+            selection_specifier: Especificador de seleção (opcional, depende do modo de seleção de pixels).
+        """
+
+        self.image_path = image_path
+        self.image_pattern = image_pattern
+        self.first_image_number = first_image_number
+        self.last_image_number = last_image_number
+        self.pixel_selection = pixel_selection
+        self.selection_specifier = selection_specifier
+        
+    def track_pixel_history(self):
+        """Rastreia o histórico de pixels nas imagens capturadas."""
+
+        # Caminho completo do padrão de arquivos
+        full_file_pattern = os.path.join(self.image_path, self.image_pattern)
+        # Número de imagens a serem consideradas
+        num_images = self.last_image_number - self.first_image_number + 1
+
+        # Leitura da primeira imagem para obter o tamanho e a colormap
+        first_image_file = full_file_pattern % self.first_image_number
+        img_pix = cv2.imread(first_image_file, cv2.IMREAD_GRAYSCALE)
+        img_lin, img_row = img_pix.shape
+
+        # Inicialização do histórico de pixels
+        pix_his = [None] * 5
+        if self.pixel_selection == 'a': # Todos os pixels na imagem
+            pix_his[0] = np.zeros((img_lin * img_row, num_images), dtype=np.float32)
+            pix_his[2] = [img_lin, img_row]
+        elif self.pixel_selection == 'h': # Todos os pixels em uma linha
+            pix_his[0] = np.zeros((img_row, num_images), dtype=np.float32)
+            if self.selection_specifier == 'm':
+                pix_his[2] = round(img_lin / 2)
+            elif self.selection_specifier == 'e':
+                pix_his[2] = img_lin
+            else:
+                pix_his[2] = self.selection_specifier
+        elif self.pixel_selection == 'v': # Todos os pixels em uma coluna
+            pix_his[0] = np.zeros((img_lin, num_images), dtype=np.float32)
+            if self.selection_specifier == 'm':
+                pix_his[2] = round(img_row / 2)
+            elif self.selection_specifier == 'e':
+                pix_his[2] = img_row
+            else:
+                pix_his[2] = self.selection_specifier
+        elif self.pixel_selection == 'r': # Pixels aleatórios na imagem
+            if self.selection_specifier < 1:
+                num_pix = round(img_lin * img_row * self.selection_specifier)
+            else:
+                num_pix = self.selection_specifier
+            pix_his[0] = np.zeros((num_pix, num_images), dtype=np.float32)
+            pix_his[2] = np.column_stack((np.random.randint(0, img_lin, num_pix), np.random.randint(0, img_row, num_pix)))
+        else:
+            raise ValueError('thspcore: unknown pixel selection mode!')
+
+        pix_his[1] = self.pixel_selection
+        pix_his[3] = None # Nenhum mapa RGB necessário para imagens em tons de cinza
+
+        for idx_img in range(num_images):
+            image_file = full_file_pattern % (idx_img + self.first_image_number)
+            img_pix = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE).astype(np.float32)
+            if self.pixel_selection == 'a':
+                pix_his[0][:, idx_img] = img_pix.flatten()
+                # OU
+                # for idx_lin in range(img_lin):
+                #     aux_ini = img_row * idx_lin
+                #     aux_fin = img_row * (idx_lin + 1)
+                #     pix_his[0][aux_ini:aux_fin, idx_img] = img_pix[idx_lin, :]
+            elif self.pixel_selection == 'h':
+                pix_his[0][:, idx_img] = img_pix[pix_his[3], :]
+            elif self.pixel_selection == 'v':
+                pix_his[0][:, idx_img] = img_pix[:, pix_his[3]]
+            elif self.pixel_selection == 'r':
+                for idx_pix in range(num_pix):
+                    # OU
+                    # for idx_pix in range(pix_his[0].shape[0]):
+                    pix_his[0][idx_pix, idx_img] = img_pix[pix_his[3][idx_pix, 0], pix_his[3][idx_pix, 1]]
+        return pix_his
+
+
 class Main:
     """Classe principal para executar o programa."""
     
@@ -124,6 +218,32 @@ class Main:
 
         # Libera a captura de vídeo
         preview.video_input_object.release()
+
+        pixel_selection = 'a'  # Modo de seleção de pixels: 'a', 'h', 'v', 'r'
+        selection_specific = None  # Pode ser 'm', 'e' ou um número específico dependendo do modo
+
+        pix_hist = PixelHistory(output_path, file_name, first_image_number, last_image_number, pixel_selection, selection_specific)
+        pixel_history_data = pix_hist.track_pixel_history()
+
+        # Exemplo de saída do histórico de pixels
+        print(pixel_history_data)
+
+        # Salvando o resultado em um arquivo de texto
+        with open('output.txt', 'w') as f:
+            print(pixel_history_data, file=f)
+
+        print("Resultados salvos em 'output.txt'.")
+
+        # Salvando o resultado em um arquivo de texto
+        with open('pixel_history.txt', 'w') as file:
+            for array in pixel_history_data[0]:  # A matriz está na primeira posição da lista
+                for value in array:
+                    file.write(f"{value} ")
+                file.write("\n")
+
+        print("Resultado salvo em pixel_history.txt")
+
+
 
 if __name__ == "__main__":
     Main.run()
