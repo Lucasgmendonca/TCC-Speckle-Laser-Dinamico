@@ -7,17 +7,23 @@ import numpy as np ### Importa a classe datetime do módulo datetime, que permit
 class Preview:
     """Classe responsável por exibir uma pré-visualização da câmera."""
 
-    def __init__(self): 
+    def __init__(self, region_of_interest): 
         """Inicializa a classe Preview."""
         self.video_input_object = cv2.VideoCapture(0) ### Criação do objeto de captura de vídeo
         ### Cria um objeto de captura de vídeo (videoInputObject) que representa a câmera.
         ### O argumento 0 indica que queremos capturar vídeo da primeira câmera disponível no sistema.
+        self.region_of_interest = region_of_interest  # Define a região de interesse
         
     def open_preview(self):
         """Abre uma janela para visualização da câmera."""
         while True:
             ret, frame = self.video_input_object.read() ### Lê um frame do vídeo capturado pela câmera e armazena-o nas variáveis ret (um booleano que indica se a leitura foi bem-sucedida) e frame (o próprio frame capturado).
-            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            if not ret:
+                break
+            # Aplicando a região de interesse
+            x, y, w, h = self.region_of_interest  # Obtém a região de interesse
+            roi_frame = frame[y:y+h, x:x+w]
+            gray_frame = cv2.cvtColor(roi_frame, cv2.COLOR_BGR2GRAY)
             cv2.imshow('Preview', gray_frame) ### Exibe o frame capturado em uma janela com o título "Preview". A função imshow do OpenCV é usada para exibir imagens.
             if cv2.waitKey(1) & 0xFF == ord('q'): ### Aguarda 1 milissegundo por uma entrada do teclado. Se a tecla pressionada for 'q', o loop será interrompido e o programa será encerrado. A função waitKey retorna o código ASCII da tecla pressionada e o operador & é usado para mascarar os bits irrelevantes.
                 break
@@ -66,15 +72,18 @@ class Capture:
 
         # Configuração da captura
         self.video_input_object.set(cv2.CAP_PROP_FPS, self.frame_grab_interval) ### Configura as propriedades do objeto de entrada de vídeo para o intervalo de captura de quadros.
-        self.video_input_object.set(cv2.CAP_PROP_FRAME_WIDTH, self.region_of_interest[2]) ### Configura as propriedades do objeto de entrada de vídeo para as dimensões da região de interesse.
-        self.video_input_object.set(cv2.CAP_PROP_FRAME_HEIGHT, self.region_of_interest[3]) ### Configura as propriedades do objeto de entrada de vídeo para as dimensões da região de interesse.
 
         # Captura de imagens
         print('captcore: acquisition started, please wait!')
         captured_frames = []
         for _ in range(number_of_images):
             ret, frame = self.video_input_object.read() ### Lê um frame do vídeo capturado pela câmera e armazena-o nas variáveis ret (um booleano que indica se a leitura foi bem-sucedida) e frame (o próprio frame capturado).
-            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            if not ret:
+                break
+            # Aplicando a região de interesse
+            x, y, w, h = self.region_of_interest
+            roi_frame = frame[y:y+h, x:x+w]
+            gray_frame = cv2.cvtColor(roi_frame, cv2.COLOR_BGR2GRAY)
             captured_frames.append(gray_frame) ### Após a leitura do frame, ele é adicionado à lista captured_frames usando o método append(). Isso significa que cada frame capturado será armazenado nesta lista.
         print('captcore: acquisition completed, saving the images!')
 
@@ -148,7 +157,7 @@ class PixelHistory:
             if self.selection_specifier == 'm':
                 pix_his[2] = round(img_lin / 2)
             elif self.selection_specifier == 'e':
-                pix_his[2] = img_lin
+                pix_his[2] = img_lin-1
             else:
                 pix_his[2] = self.selection_specifier
         elif self.pixel_selection == 'v': # Todos os pixels em uma coluna
@@ -156,7 +165,7 @@ class PixelHistory:
             if self.selection_specifier == 'm':
                 pix_his[2] = round(img_row / 2)
             elif self.selection_specifier == 'e':
-                pix_his[2] = img_row
+                pix_his[2] = img_row-1
             else:
                 pix_his[2] = self.selection_specifier
         elif self.pixel_selection == 'r': # Pixels aleatórios na imagem
@@ -183,14 +192,14 @@ class PixelHistory:
                 #     aux_fin = img_row * (idx_lin + 1)
                 #     pix_his[0][aux_ini:aux_fin, idx_img] = img_pix[idx_lin, :]
             elif self.pixel_selection == 'h':
-                pix_his[0][:, idx_img] = img_pix[pix_his[3], :]
+                pix_his[0][:, idx_img] = img_pix[pix_his[2], :]
             elif self.pixel_selection == 'v':
-                pix_his[0][:, idx_img] = img_pix[:, pix_his[3]]
+                pix_his[0][:, idx_img] = img_pix[:, pix_his[2]]
             elif self.pixel_selection == 'r':
                 for idx_pix in range(num_pix):
                     # OU
                     # for idx_pix in range(pix_his[0].shape[0]):
-                    pix_his[0][idx_pix, idx_img] = img_pix[pix_his[3][idx_pix, 0], pix_his[3][idx_pix, 1]]
+                    pix_his[0][idx_pix, idx_img] = img_pix[pix_his[2][idx_pix, 0], pix_his[2][idx_pix, 1]]
         return pix_his
 
 
@@ -204,13 +213,13 @@ class Main:
         first_image_number = 1
         last_image_number = 10
         frame_grab_interval = 1 ### Define o intervalo entre cada captura de imagem, em milissegundos.
-        region_of_interest = (0, 0, 640, 480) ### (a, b, x, y)
+        region_of_interest = (0, 60, 640, 360) ### (a, b, x, y)
         ### a: É o deslocamento horizontal (ou posição) da região de interesse a partir da extremidade esquerda da imagem ou vídeo.
         ### b: É o deslocamento vertical (ou posição) da região de interesse a partir da extremidade superior da imagem ou vídeo.
         ### x: É o comprimento horizontal da região de interesse.
         ### y: É o comprimento vertical da região de interesse.
 
-        preview = Preview()
+        preview = Preview(region_of_interest)
         preview.open_preview()
 
         capture = Capture(preview.video_input_object, output_path, frame_grab_interval, region_of_interest, file_name, first_image_number, last_image_number)
