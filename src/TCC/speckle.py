@@ -1,8 +1,8 @@
 import cv2 ### Importa a biblioteca OpenCV, que é uma biblioteca popular de visão computacional.
 import os ### Importa o módulo 'os', que fornece funções para interagir com o sistema operacional, permitindo manipulação de caminhos de arquivos, diretórios, etc.
-from datetime import datetime
-
-import numpy as np ### Importa a classe datetime do módulo datetime, que permite trabalhar com datas e horários em Python.
+from datetime import datetime ### Importa a classe datetime do módulo datetime, que permite trabalhar com datas e horários em Python.
+import numpy as np ### Importa a biblioteca NumPy, que oferece suporte a arrays e matrizes multidimensionais, junto com uma coleção de funções matemáticas de alto nível para operar nesses arrays, e a renomeia como 'np' para facilitar o acesso às suas funções e classes.
+import matplotlib.pyplot as plt ### Importa o módulo pyplot da biblioteca Matplotlib, esse módulo fornece uma interface fácil de usar para criar e personalizar gráficos em Python, e o renomeia como 'plt' para facilitar o acesso às suas funções.
 
 class Preview:
     """Classe responsável por exibir uma pré-visualização da câmera."""
@@ -22,11 +22,12 @@ class Preview:
                 break
             # Aplicando a região de interesse
             x, y, w, h = self.region_of_interest  # Obtém a região de interesse
-            roi_frame = frame[y:y+h, x:x+w]
-            gray_frame = cv2.cvtColor(roi_frame, cv2.COLOR_BGR2GRAY)
+            roi_frame = frame[y:y+h, x:x+w] ### Esta linha extrai a região de interesse do frame capturado usando as coordenadas obtidas anteriormente.
+            gray_frame = cv2.cvtColor(roi_frame, cv2.COLOR_BGR2GRAY) ### O frame da região de interesse é convertido para escala de cinza usando a função cvtColor do OpenCV.
             cv2.imshow('Preview', gray_frame) ### Exibe o frame capturado em uma janela com o título "Preview". A função imshow do OpenCV é usada para exibir imagens.
             if cv2.waitKey(1) & 0xFF == ord('q'): ### Aguarda 1 milissegundo por uma entrada do teclado. Se a tecla pressionada for 'q', o loop será interrompido e o programa será encerrado. A função waitKey retorna o código ASCII da tecla pressionada e o operador & é usado para mascarar os bits irrelevantes.
                 break
+
 
 class Capture:
     """Classe responsável por capturar imagens da câmera."""
@@ -68,7 +69,7 @@ class Capture:
         if any(val < 0 for val in self.region_of_interest[:4]): ### Inconsistente para quaisquer valores negativos para a posição ou deslocamento
             raise ValueError('captcore: region of interest is not consistent!')
         if any((val1 + val2) > res for val1, val2, res in zip(self.region_of_interest[:2], self.region_of_interest[2:], video_resolution)):
-            raise ValueError('captcore: region of interest is not compatible with video resolution!') ### Inconsistente se a soma da posição e do tamanho da região de interesse (horizontal ou vertical) 
+            raise ValueError('captcore: region of interest is not compatible with video resolution!')
 
         # Configuração da captura
         self.video_input_object.set(cv2.CAP_PROP_FPS, self.frame_grab_interval) ### Configura as propriedades do objeto de entrada de vídeo para o intervalo de captura de quadros.
@@ -111,6 +112,7 @@ class Capture:
             file_writer.write(f'\t\t* Thus, the sampling time was {sampling_time} seconds\n\n')
             ### Lista de outras propriedades disponíveis em https://docs.opencv.org/4.x/d4/d15/group__videoio__flags__base.html
 
+
 class PixelHistory:
     """Classe responsável por analisar e armazenar o histórico de pixels de uma série de imagens."""
 
@@ -148,7 +150,7 @@ class PixelHistory:
         img_lin, img_row = img_pix.shape
 
         # Inicialização do histórico de pixels
-        pix_his = [None] * 5
+        pix_his = [None] * 3
         if self.pixel_selection == 'a': # Todos os pixels na imagem
             pix_his[0] = np.zeros((img_lin * img_row, num_images), dtype=np.float32)
             pix_his[2] = [img_lin, img_row]
@@ -179,18 +181,17 @@ class PixelHistory:
             raise ValueError('thspcore: unknown pixel selection mode!')
 
         pix_his[1] = self.pixel_selection
-        pix_his[3] = None # Nenhum mapa RGB necessário para imagens em tons de cinza
 
         for idx_img in range(num_images):
             image_file = full_file_pattern % (idx_img + self.first_image_number)
             img_pix = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE).astype(np.float32)
             if self.pixel_selection == 'a':
-                pix_his[0][:, idx_img] = img_pix.flatten()
+                # pix_his[0][:, idx_img] = img_pix.flatten()
                 # OU
-                # for idx_lin in range(img_lin):
-                #     aux_ini = img_row * idx_lin
-                #     aux_fin = img_row * (idx_lin + 1)
-                #     pix_his[0][aux_ini:aux_fin, idx_img] = img_pix[idx_lin, :]
+                for idx_lin in range(img_lin):
+                    aux_ini = img_row * idx_lin
+                    aux_fin = img_row * (idx_lin + 1)
+                    pix_his[0][aux_ini:aux_fin, idx_img] = img_pix[idx_lin, :]
             elif self.pixel_selection == 'h':
                 pix_his[0][:, idx_img] = img_pix[pix_his[2], :]
             elif self.pixel_selection == 'v':
@@ -218,6 +219,7 @@ class Main:
         ### b: É o deslocamento vertical (ou posição) da região de interesse a partir da extremidade superior da imagem ou vídeo.
         ### x: É o comprimento horizontal da região de interesse.
         ### y: É o comprimento vertical da região de interesse.
+        pixel_index = 0  # Índice do pixel escolhido
 
         preview = Preview(region_of_interest)
         preview.open_preview()
@@ -240,7 +242,6 @@ class Main:
         # Salvando o resultado em um arquivo de texto
         with open('output.txt', 'w') as f:
             print(pixel_history_data, file=f)
-
         print("Resultados salvos em 'output.txt'.")
 
         # Salvando o resultado em um arquivo de texto
@@ -249,9 +250,16 @@ class Main:
                 for value in array:
                     file.write(f"{value} ")
                 file.write("\n")
-
         print("Resultado salvo em pixel_history.txt")
-
+        
+        # Plotando o gráfico do histórico de intensidade do pixel escolhido
+        plt.figure()
+        plt.plot(range(first_image_number, last_image_number + 1), pixel_history_data[0][pixel_index], label=f'Pixel {pixel_index+1}')
+        plt.xlabel('Número da Imagem')
+        plt.ylabel('Intensidade')
+        plt.title('Histórico de Intensidade de Pixel')
+        plt.legend()
+        plt.show()
 
 
 if __name__ == "__main__":
