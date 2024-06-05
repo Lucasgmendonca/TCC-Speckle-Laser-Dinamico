@@ -204,6 +204,60 @@ class PixelHistory:
         return pix_his
 
 
+class PlotGraph:
+    """Classe responsável por plotar gráficos."""
+
+    def __init__(self, pixel_history_data, first_image_number, last_image_number, pixel_index):
+        """
+        Inicializa a classe PlotGraph.
+
+        Args:
+            pixel_history_data: Dados do histórico de pixels.
+            first_image_number: Número da primeira imagem.
+            last_image_number: Número da última imagem.
+            pixel_index: Índice do pixel a ser plotado.
+        """
+        self.pixel_history_data = pixel_history_data
+        self.first_image_number = first_image_number
+        self.last_image_number = last_image_number
+        self.pixel_index = pixel_index
+
+    def plot(self):
+        """Plota o gráfico do histórico de intensidade do pixel escolhido."""
+        plt.figure()
+        plt.plot(range(self.first_image_number, self.last_image_number + 1), self.pixel_history_data[0][self.pixel_index], label=f'Pixel {self.pixel_index + 1}')
+        plt.xlabel('Número da Imagem')
+        plt.ylabel('Intensidade')
+        plt.title('Histórico de Intensidade de Pixel')
+        plt.legend()
+        plt.show()
+
+class SaveResults:
+    """Classe responsável por salvar os resultados em arquivos de texto."""
+
+    def __init__(self, pixel_history_data):
+        """Inicializa a classe SaveResults.
+
+        Args:
+            pixel_history_data: Dados do histórico de pixels.
+        """
+        self.pixel_history_data = pixel_history_data
+
+    def save(self):
+        """Salva os dados do histórico de pixels em arquivos de texto."""
+        # Salvando o resultado em um arquivo de texto
+        with open('output.txt', 'w') as f:
+            print(self.pixel_history_data, file=f)
+        print("Resultados salvos em 'output.txt'.")
+
+        # Salvando o resultado em um arquivo de texto
+        with open('pixel_history.txt', 'w') as file:
+            for array in self.pixel_history_data[0]:  # A matriz está na primeira posição da lista
+                for value in array:
+                    file.write(f"{value} ")
+                file.write("\n")
+        print("Histórico dos pixels salvo em pixel_history.txt")
+
 class Main:
     """Classe principal para executar o programa."""
     
@@ -219,6 +273,8 @@ class Main:
         ### b: É o deslocamento vertical (ou posição) da região de interesse a partir da extremidade superior da imagem ou vídeo.
         ### x: É o comprimento horizontal da região de interesse.
         ### y: É o comprimento vertical da região de interesse.
+        pixel_selection = 'a'  # Modo de seleção de pixels: 'a', 'h', 'v', 'r'
+        selection_specific = None  # Pode ser 'm', 'e' ou um número específico dependendo do modo
         pixel_index = 0  # Índice do pixel escolhido
 
         preview = Preview(region_of_interest)
@@ -230,37 +286,16 @@ class Main:
         # Libera a captura de vídeo
         preview.video_input_object.release()
 
-        pixel_selection = 'a'  # Modo de seleção de pixels: 'a', 'h', 'v', 'r'
-        selection_specific = None  # Pode ser 'm', 'e' ou um número específico dependendo do modo
-
         pix_hist = PixelHistory(output_path, file_name, first_image_number, last_image_number, pixel_selection, selection_specific)
         pixel_history_data = pix_hist.track_pixel_history()
 
-        # Exemplo de saída do histórico de pixels
-        print(pixel_history_data)
-
         # Salvando o resultado em um arquivo de texto
-        with open('output.txt', 'w') as f:
-            print(pixel_history_data, file=f)
-        print("Resultados salvos em 'output.txt'.")
-
-        # Salvando o resultado em um arquivo de texto
-        with open('pixel_history.txt', 'w') as file:
-            for array in pixel_history_data[0]:  # A matriz está na primeira posição da lista
-                for value in array:
-                    file.write(f"{value} ")
-                file.write("\n")
-        print("Resultado salvo em pixel_history.txt")
+        save_results = SaveResults(pixel_history_data)
+        save_results.save()
         
         # Plotando o gráfico do histórico de intensidade do pixel escolhido
-        plt.figure()
-        plt.plot(range(first_image_number, last_image_number + 1), pixel_history_data[0][pixel_index], label=f'Pixel {pixel_index+1}')
-        plt.xlabel('Número da Imagem')
-        plt.ylabel('Intensidade')
-        plt.title('Histórico de Intensidade de Pixel')
-        plt.legend()
-        plt.show()
-
+        plot_graph = PlotGraph(pixel_history_data, first_image_number, last_image_number, pixel_index)
+        plot_graph.plot()
 
 if __name__ == "__main__":
     Main.run()
