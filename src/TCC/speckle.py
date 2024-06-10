@@ -116,7 +116,7 @@ class Capture:
 class PixelHistory:
     """Classe responsável por analisar e armazenar o histórico de pixels de uma série de imagens."""
 
-    def __init__(self, image_path, image_pattern, first_image_number, last_image_number, pixel_selection, selection_specifier=None):
+    def __init__(self, image_path, image_pattern, first_image_number, last_image_number, pixel_selection, selection_specifier):
         """
         Inicializa a classe PixelHistory.
 
@@ -138,6 +138,19 @@ class PixelHistory:
         
     def track_pixel_history(self):
         """Rastreia o histórico de pixels nas imagens capturadas."""
+
+        # Consistência de parâmetros
+        if self.pixel_selection == 'a':
+            if self.selection_specifier is not None:
+                raise ValueError("For 'pixel_selection' = 'a', 'selection_specifier' must be None.")
+        elif self.pixel_selection in ['h', 'v']:
+            if self.selection_specifier not in ['m', 'e']:
+                raise ValueError("For 'pixel_selection' = 'h' or 'v', 'selection_specifier' must be 'm' or 'e'.")
+        elif self.pixel_selection == 'r':
+            if not (isinstance(self.selection_specifier, int) and 0 < self.selection_specifier < 230401):
+                raise ValueError("For 'pixel_selection' = 'r', 'selection_specifier' must be a number greater than 0 and less than 230401.")
+        else:
+            raise ValueError(f"Unknown pixel selection mode: {self.pixel_selection}")
 
         # Caminho completo do padrão de arquivos
         full_file_pattern = os.path.join(self.image_path, self.image_pattern)
