@@ -482,7 +482,7 @@ class Main:
         pixel_selection = 'a'  # Modo de seleção de pixels: 'a', 'h', 'v', 'r'
         selection_specific = None  # Pode ser 'm', 'e' ou um número específico dependendo do modo
         pixel_index = 0  # Índice do pixel escolhido
-        method_selection = 3  # Método de análise: '1', '2', '3', '4', '5'
+        method_selection = 5  # Método de análise: '1', '2', '3', '4', '5'
 
         preview = Preview(region_of_interest)
         preview.open_preview()
