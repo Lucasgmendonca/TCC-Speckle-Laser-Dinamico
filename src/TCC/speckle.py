@@ -217,61 +217,6 @@ class PixelHistory:
         return pix_his
 
 
-class PlotGraph:
-    """Classe responsável por plotar gráficos."""
-
-    def __init__(self, pixel_history_data, first_image_number, last_image_number, pixel_index):
-        """
-        Inicializa a classe PlotGraph.
-
-        Args:
-            pixel_history_data: Dados do histórico de pixels.
-            first_image_number: Número da primeira imagem.
-            last_image_number: Número da última imagem.
-            pixel_index: Índice do pixel a ser plotado.
-        """
-        self.pixel_history_data = pixel_history_data
-        self.first_image_number = first_image_number
-        self.last_image_number = last_image_number
-        self.pixel_index = pixel_index
-
-    def plot(self):
-        """Plota o gráfico do histórico de intensidade do pixel escolhido."""
-        plt.figure()
-        plt.plot(range(self.first_image_number, self.last_image_number + 1), self.pixel_history_data[0][self.pixel_index], label=f'Pixel {self.pixel_index + 1}')
-        plt.xlabel('Número da Imagem')
-        plt.ylabel('Intensidade')
-        plt.title('Histórico de Intensidade de Pixel')
-        plt.legend()
-        plt.show()
-
-
-# class SavePixelHistory:
-#     """Classe responsável por salvar o histórico de pixels em um arquivo de texto."""
-
-#     def __init__(self, pixel_history_data):
-#         """Inicializa a classe SavePixelHistory.
-
-#         Args:
-#             pixel_history_data: Dados do histórico de pixels.
-#         """
-#         self.pixel_history_data = pixel_history_data
-
-#     def save(self):
-#         """Salva os dados do histórico de pixels em arquivos de texto."""
-#         # Salvando o resultado em um arquivo de texto
-#         with open('output.txt', 'w') as f:
-#             print(self.pixel_history_data, file=f)
-#         print("Resultados salvos em 'output.txt'.")
-
-#         # Salvando o resultado em um arquivo de texto
-#         with open('pixel_history.txt', 'w') as file:
-#             for array in self.pixel_history_data[0]:  # A matriz está na primeira posição da lista
-#                 for value in array:
-#                     file.write(f"{value} ")
-#                 file.write("\n")
-#         print("Histórico dos pixels salvo em pixel_history.txt")
-
 class SavePixelHistory:
     """Classe responsável por salvar o histórico de pixels e o gráfico do histórico."""
 
@@ -345,50 +290,6 @@ class SaveAnalysisResults:
                     file.write(f"{value} ")
                 file.write("\n")
         print("Matriz de co-ocorrência salva em 'co_occurrence_matrix.txt'.")
-
-
-# class SaveResults:
-#     """Classe responsável por salvar os resultados em arquivos de texto."""
-
-#     def __init__(self, pixel_history_data, numerical_result, co_occurrence_matrix):
-#         """Inicializa a classe SaveResults.
-
-#         Args:
-#             pixel_history_data: Dados do histórico de pixels.
-#             numerical_result: Resultado numérico da análise.
-#             co_occurrence_matrix: Matriz de co-ocorrência.
-#         """
-#         self.pixel_history_data = pixel_history_data
-#         self.numerical_result = numerical_result
-#         self.co_occurrence_matrix = co_occurrence_matrix
-
-#     def save(self):
-#         """Salva os dados do histórico de pixels em arquivos de texto."""
-#         # Salvando o resultado em um arquivo de texto
-#         with open('output.txt', 'w') as f:
-#             print(self.pixel_history_data, file=f)
-#         print("Resultados salvos em 'output.txt'.")
-
-#         # Salvando o resultado em um arquivo de texto
-#         with open('pixel_history.txt', 'w') as file:
-#             for array in self.pixel_history_data[0]:  # A matriz está na primeira posição da lista
-#                 for value in array:
-#                     file.write(f"{value} ")
-#                 file.write("\n")
-#         print("Histórico dos pixels salvo em pixel_history.txt")
-
-#         # Salvando o resultado numérico em um arquivo de texto
-#         with open('numerical_result.txt', 'w') as file:
-#             file.write(f"Numerical Result: {self.numerical_result}\n")
-#         print("Resultado numérico salvo em 'numerical_result.txt'.")
-
-#         # Salvando a matriz de co-ocorrência em um arquivo de texto
-#         with open('co_occurrence_matrix.txt', 'w') as file:
-#             for row in self.co_occurrence_matrix:
-#                 for value in row:
-#                     file.write(f"{value} ")
-#                 file.write("\n")
-#         print("Matriz de co-ocorrência salva em 'co_occurrence_matrix.txt'.")
 
 
 class NumericalAnalysis:
