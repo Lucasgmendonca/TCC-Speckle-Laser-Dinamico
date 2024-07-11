@@ -1,28 +1,53 @@
 import tkinter as tk
 from preview import Preview
-from capture import Capture
-from pixel_history import PixelHistory
-from numericalanalysis import NumericalAnalysis
+from captcore import Captcore
+from thspcore import PixelHistory
+from numecore import NumericalAnalysis
 
 class Main:
 
     @staticmethod
     def run(mode):
-        output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints'
-        file_name = 'Img%03d.bmp'
-        first_image_number = 1
-        last_image_number = 10
-        
-        if mode == 'camprev_captcore':
-            frame_grab_interval = 1 
-            region_of_interest = (0, 60, 640, 360)
-            preview = Preview(region_of_interest)
+        if mode == 'camprev':
+            preview = Preview()
             preview.open_preview()
-            capture = Capture(preview.video_input_object, output_path, frame_grab_interval, region_of_interest, file_name, first_image_number, last_image_number)
-            capture.capture_images()
             preview.video_input_object.release()
 
+        elif mode == 'camprev_captcore':
+            preview = Preview()
+            #preview.open_preview()
+            preview.open_preview_configured()
+            output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints'
+            file_name = 'Img%03d.bmp'
+            first_image_number = 1
+            last_image_number = 10
+            frame_grab_interval = 1
+            region_of_interest = (0, 60, 640, 360)
+            captcore = Captcore(preview.video_input_object, output_path, frame_grab_interval, region_of_interest, file_name, first_image_number, last_image_number)
+            captcore.capture_images()
+            preview.video_input_object.release()
+
+        # elif mode == 'thspcore':
+        #     output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints'
+        #     file_name = 'Img%03d.bmp'
+        #     first_image_number = 1
+        #     last_image_number = 10
+        #     pixel_selection = 'a'
+        #     selection_specific = None
+        #     pixel_index = 0
+        #     pix_hist = PixelHistory(output_path, file_name, first_image_number, last_image_number, pixel_selection, selection_specific, pixel_index)
+
+        # elif mode == 'numecore':
+        #     output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints'
+        #     method_selection = 5 
+        #     num_analysis = NumericalAnalysis(pixel_history_data, method_selection)
+        #     num_analysis.numecore()
+
         elif mode == 'thspcore_numecore':
+            output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints'
+            file_name = 'Img%03d.bmp'
+            first_image_number = 1
+            last_image_number = 10
             pixel_selection = 'a'
             selection_specific = None
             pixel_index = 0
