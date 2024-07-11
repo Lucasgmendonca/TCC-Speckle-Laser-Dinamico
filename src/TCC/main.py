@@ -1,4 +1,6 @@
 import tkinter as tk
+
+import numpy as np
 from preview import Preview
 from captcore import Captcore
 from thspcore import PixelHistory
@@ -27,7 +29,24 @@ class Main:
             captcore.capture_images()
             preview.video_input_object.release()
 
-        # elif mode == 'thspcore':
+        elif mode == 'thspcore':
+            output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints'
+            file_name = 'Img%03d.bmp'
+            first_image_number = 1
+            last_image_number = 10
+            pixel_selection = 'h'
+            selection_specific = 'e'
+            pixel_index = 0
+            thspcore = PixelHistory(output_path, file_name, first_image_number, last_image_number, pixel_selection, selection_specific, pixel_index)
+            thspcore.track_pixel_history()
+
+        elif mode == 'numecore':
+            pixel_history_data = np.loadtxt('pixel_history.txt')
+            method_selection = 1
+            numecore = NumericalAnalysis(pixel_history_data, method_selection)
+            numecore.numecore()
+
+        # elif mode == 'thspcore_numecore':
         #     output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints'
         #     file_name = 'Img%03d.bmp'
         #     first_image_number = 1
@@ -35,27 +54,11 @@ class Main:
         #     pixel_selection = 'a'
         #     selection_specific = None
         #     pixel_index = 0
-        #     pix_hist = PixelHistory(output_path, file_name, first_image_number, last_image_number, pixel_selection, selection_specific, pixel_index)
-
-        # elif mode == 'numecore':
-        #     output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints'
+        #     PixelHistory(output_path, file_name, first_image_number, last_image_number, pixel_selection, selection_specific, pixel_index)
+        #     pixel_history_data = np.loadtxt('pixel_history.txt')
         #     method_selection = 5 
         #     num_analysis = NumericalAnalysis(pixel_history_data, method_selection)
         #     num_analysis.numecore()
-
-        elif mode == 'thspcore_numecore':
-            output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints'
-            file_name = 'Img%03d.bmp'
-            first_image_number = 1
-            last_image_number = 10
-            pixel_selection = 'a'
-            selection_specific = None
-            pixel_index = 0
-            pix_hist = PixelHistory(output_path, file_name, first_image_number, last_image_number, pixel_selection, selection_specific, pixel_index)
-            pixel_history_data = pix_hist.track_pixel_history()
-            method_selection = 5 
-            num_analysis = NumericalAnalysis(pixel_history_data, method_selection)
-            num_analysis.numecore()
 
     @staticmethod
     def choose_mode():
@@ -70,8 +73,10 @@ class Main:
         
         button_width = 50
         
-        tk.Button(root, text="1. Visualização da câmera e Captura das imagens (captcore)", width=button_width, command=lambda: start_mode('camprev_captcore')).pack(pady=5)
-        tk.Button(root, text="2. Análise das imagens (thspcore & numecore)", width=button_width, command=lambda: start_mode('thspcore_numecore')).pack(pady=5)
+        tk.Button(root, text="1.", width=button_width, command=lambda: start_mode('camprev')).pack(pady=5)
+        tk.Button(root, text="2.", width=button_width, command=lambda: start_mode('camprev_captcore')).pack(pady=5)
+        tk.Button(root, text="3.", width=button_width, command=lambda: start_mode('thspcore')).pack(pady=5)
+        tk.Button(root, text="4.", width=button_width, command=lambda: start_mode('numecore')).pack(pady=5)
         
         root.mainloop()
 

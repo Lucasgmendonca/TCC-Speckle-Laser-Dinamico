@@ -103,7 +103,7 @@ class PixelHistory:
                     pix_his[0][idx_pix, idx_img] = img_pix[pix_his[2][idx_pix, 0], pix_his[2][idx_pix, 1]]
 
         # Salvando o resultado em um arquivo de texto
-        with open('output.txt', 'w') as f:
+        with open('thspcore_output.txt', 'w') as f:
             print(pix_his, file=f)
         print("Resultados salvos em 'thspcore_output.txt'.")
 

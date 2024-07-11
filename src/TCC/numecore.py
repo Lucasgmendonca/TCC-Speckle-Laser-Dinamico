@@ -25,16 +25,16 @@ class NumericalAnalysis:
             raise ValueError('numecore: unknown method of analysis!')
 
         # Parâmetros internos
-        sts_lin = self.pixel_history_data[0].shape[0]
-        sts_row = self.pixel_history_data[0].shape[1]
+        sts_lin = self.pixel_history_data.shape[0]
+        sts_row = self.pixel_history_data.shape[1]
 
         # Geração da matriz de co-ocorrência (se necessário)
         if self.method_selection < 3 or self.method_selection > 4:
             co_matr = np.zeros((256, 256))
             for idx_lin in range(sts_lin):
                 for idx_row in range(sts_row - 1):
-                    pix_now = round(self.pixel_history_data[0][idx_lin, idx_row])
-                    pix_nxt = round(self.pixel_history_data[0][idx_lin, idx_row + 1])
+                    pix_now = round(self.pixel_history_data[idx_lin, idx_row])
+                    pix_nxt = round(self.pixel_history_data[idx_lin, idx_row + 1])
                     co_matr[pix_now, pix_nxt] += 1 
 
         # Momento de inércia
@@ -55,11 +55,11 @@ class NumericalAnalysis:
 
         # Desvio padrão
         if self.method_selection == 3:
-            num_res = np.mean(np.std(self.pixel_history_data[0], axis=1))
+            num_res = np.mean(np.std(self.pixel_history_data, axis=1))
 
         # Intensidade média do pixel
         if self.method_selection == 4:
-            num_res = np.mean(self.pixel_history_data[0])
+            num_res = np.mean(self.pixel_history_data)
 
         # Novo valor absoluto das diferenças
         if self.method_selection == 5:
