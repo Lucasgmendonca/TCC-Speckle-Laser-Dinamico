@@ -86,10 +86,10 @@ class Main:
         
         button_width = 50
         
-        tk.Button(root, text="1.", width=button_width, command=lambda: start_mode('camprev')).pack(pady=5)
-        tk.Button(root, text="2.", width=button_width, command=lambda: start_mode('camprev_captcore')).pack(pady=5)
-        tk.Button(root, text="3.", width=button_width, command=lambda: start_mode('thspcore')).pack(pady=5)
-        tk.Button(root, text="4.", width=button_width, command=lambda: start_mode('numecore')).pack(pady=5)
+        tk.Button(root, text="1. Only Preview ", width=button_width, command=lambda: start_mode('camprev')).pack(pady=5)
+        tk.Button(root, text="2. Preview + Captcore", width=button_width, command=lambda: start_mode('camprev_captcore')).pack(pady=5)
+        tk.Button(root, text="3. thspcore", width=button_width, command=lambda: start_mode('thspcore')).pack(pady=5)
+        tk.Button(root, text="4. captcore", width=button_width, command=lambda: start_mode('numecore')).pack(pady=5)
         
         root.mainloop()
 
