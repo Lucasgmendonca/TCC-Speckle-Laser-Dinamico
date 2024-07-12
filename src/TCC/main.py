@@ -19,46 +19,59 @@ class Main:
             preview = Preview()
             #preview.open_preview()
             preview.open_preview_configured()
-            output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints'
-            file_name = 'Img%03d.bmp'
-            first_image_number = 1
-            last_image_number = 10
-            frame_grab_interval = 1
-            region_of_interest = (0, 60, 640, 360)
+            output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints' # Output Path
+            file_name = 'Img%03d.bmp' # Images file name Pattern
+            first_image_number = 1 # First Image number
+            last_image_number = 10 # Last Image number
+            frame_grab_interval = 1 # frame Grab Interval
+            region_of_interest = (0, 60, 640, 360) # Region of Interest = [HrzOff VrtOff HrzLen VrtLen]
+            # HrzOff: horizontal offset from the left video border (in pixels)
+            # VrtOff: vertical offset from the top video border (in pixels)
+            # HrzLen: width of the window (in pixels)
+            # VrtLen: height of the window (in pixels)
             captcore = Captcore(preview.video_input_object, output_path, frame_grab_interval, region_of_interest, file_name, first_image_number, last_image_number)
             captcore.capture_images()
             preview.video_input_object.release()
 
         elif mode == 'thspcore':
-            output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints'
-            file_name = 'Img%03d.bmp'
-            first_image_number = 1
-            last_image_number = 10
-            pixel_selection = 'h'
-            selection_specific = 'e'
-            pixel_index = 0
-            thspcore = PixelHistory(output_path, file_name, first_image_number, last_image_number, pixel_selection, selection_specific, pixel_index)
+            image_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints' # Path to Images folder
+            file_name = 'Img%03d.bmp' # Images file name Pattern
+            first_image_number = 1 # First Image number
+            last_image_number = 10 # Last Image number
+            pixel_selection = 'v'   
+            # Pixel Selection mode:
+            # 'a' - all pixels in the image
+            # 'h' - all pixels in a line
+            # 'v' - all pixels in a row
+            # 'r' - random pixels in the image
+            selection_specific = 'm'
+            # Pixel Selection Specifications
+            # 'a' mode
+            #     None - this parameter is disregarded in this mode
+            # 'h' mode
+            #     'm' - middle line
+            #     'e' - end line
+            #     ### - line number
+            # 'v' mode
+            #     'm' - middle row
+            #     'e' - end row
+            #     ### - row number
+            # 'r' mode
+            #     ### - number of pixels (relative if ### < 1)
+            thspcore = PixelHistory(image_path, file_name, first_image_number, last_image_number, pixel_selection, selection_specific)
             thspcore.track_pixel_history()
 
         elif mode == 'numecore':
             pixel_history_data = np.loadtxt('pixel_history.txt')
             method_selection = 1
+            # Method Selection
+            # '1' - Moment of Inertia (MoI)
+            # '2' - Absolute Value of Diferences (AVD)
+            # '3' - Standard Deviation (SD)
+            # '4' - Average Pixel Intensity (API)
+            # '5' - New Absolute Value of Diferences (New AVD)
             numecore = NumericalAnalysis(pixel_history_data, method_selection)
             numecore.numecore()
-
-        # elif mode == 'thspcore_numecore':
-        #     output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints'
-        #     file_name = 'Img%03d.bmp'
-        #     first_image_number = 1
-        #     last_image_number = 10
-        #     pixel_selection = 'a'
-        #     selection_specific = None
-        #     pixel_index = 0
-        #     PixelHistory(output_path, file_name, first_image_number, last_image_number, pixel_selection, selection_specific, pixel_index)
-        #     pixel_history_data = np.loadtxt('pixel_history.txt')
-        #     method_selection = 5 
-        #     num_analysis = NumericalAnalysis(pixel_history_data, method_selection)
-        #     num_analysis.numecore()
 
     @staticmethod
     def choose_mode():
@@ -69,7 +82,7 @@ class Main:
             root.destroy()
             Main.run(mode)
 
-        tk.Label(root, text="Escolha a função a ser executada:").pack(pady=10)
+        tk.Label(root, text="Choose the function to be performed:").pack(pady=10)
         
         button_width = 50
         

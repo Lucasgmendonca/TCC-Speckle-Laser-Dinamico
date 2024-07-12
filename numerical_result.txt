@@ -1,1 +1,1 @@
-Numerical Result: 1.3319444444444444
+Numerical Result: 0.0

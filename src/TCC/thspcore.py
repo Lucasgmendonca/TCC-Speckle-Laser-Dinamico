@@ -1,59 +1,40 @@
 import cv2
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 
 class PixelHistory:
-    """Classe responsável por analisar e armazenar o histórico de pixels de uma série de imagens."""
 
-    def __init__(self, image_path, image_pattern, first_image_number, last_image_number, pixel_selection, selection_specifier, pixel_index):
-        """
-        Inicializa a classe PixelHistory.
-
-        Args:
-            image_path: Caminho para a pasta onde as imagens estão armazenadas.
-            image_pattern: Padrão de nome dos arquivos de imagem.
-            first_image_number: Número da primeira imagem a ser considerada.
-            last_image_number: Número da última imagem a ser considerada.
-            pixel_selection: Modo de seleção de pixels ('a', 'h', 'v', 'r').
-            selection_specifier: Especificador de seleção (opcional, depende do modo de seleção de pixels).
-            pixel_index: Índice do pixel a ser plotado.
-        """
-
+    def __init__(self, image_path, file_name, first_image_number, last_image_number, pixel_selection, selection_specifier):
         self.image_path = image_path
-        self.image_pattern = image_pattern
+        self.file_name = file_name
         self.first_image_number = first_image_number
         self.last_image_number = last_image_number
         self.pixel_selection = pixel_selection
         self.selection_specifier = selection_specifier
-        self.pixel_index = pixel_index
         
     def track_pixel_history(self):
-        """Rastreia o histórico de pixels nas imagens capturadas."""
-
-        # Consistência de parâmetros
         if self.pixel_selection == 'a':
             if self.selection_specifier is not None:
                 raise ValueError("For 'pixel_selection' = 'a', 'selection_specifier' must be None.")
-        elif self.pixel_selection in ['h', 'v']:
-            if self.selection_specifier not in ['m', 'e']:
-                raise ValueError("For 'pixel_selection' = 'h' or 'v', 'selection_specifier' must be 'm' or 'e'.")
+        elif self.pixel_selection == 'h':
+            if self.selection_specifier not in ['m', 'e'] and not (isinstance(self.selection_specifier, int) and 0 < self.selection_specifier < 361):
+                raise ValueError("For 'pixel_selection' = 'h', 'selection_specifier' must be 'm', 'e', or a number greater than 0 and less than 361.")
+        elif self.pixel_selection == 'v':
+            if self.selection_specifier not in ['m', 'e'] and not (isinstance(self.selection_specifier, int) and 0 < self.selection_specifier < 641):
+                raise ValueError("For 'pixel_selection' = 'v', 'selection_specifier' must be 'm', 'e', or a number greater than 0 and less than 641.")
         elif self.pixel_selection == 'r':
             if not (isinstance(self.selection_specifier, int) and 0 < self.selection_specifier < 230401):
                 raise ValueError("For 'pixel_selection' = 'r', 'selection_specifier' must be a number greater than 0 and less than 230401.")
         else:
             raise ValueError(f"Unknown pixel selection mode: {self.pixel_selection}")
 
-        # Parâmetros internos
-        full_file_pattern = os.path.join(self.image_path, self.image_pattern)
+        full_file_pattern = os.path.join(self.image_path, self.file_name)
         num_images = self.last_image_number - self.first_image_number + 1
 
-        # Leitura da primeira imagem para obter o tamanho e a colormap
         first_image_file = full_file_pattern % self.first_image_number
         img_pix = cv2.imread(first_image_file, cv2.IMREAD_GRAYSCALE)
         img_lin, img_row = img_pix.shape
 
-        # Inicialização do histórico de pixels
         pix_his = [None] * 3
         if self.pixel_selection == 'a':
             pix_his[0] = np.zeros((img_lin * img_row, num_images), dtype=np.float32)
@@ -102,28 +83,15 @@ class PixelHistory:
                 for idx_pix in range(num_pix):
                     pix_his[0][idx_pix, idx_img] = img_pix[pix_his[2][idx_pix, 0], pix_his[2][idx_pix, 1]]
 
-        # Salvando o resultado em um arquivo de texto
+        # Saving the result (array) to a text file
         with open('thspcore_output.txt', 'w') as f:
             print(pix_his, file=f)
-        print("Resultados salvos em 'thspcore_output.txt'.")
+        print("Results saved in 'thspcore_output.txt'.")
 
-        # Salvando o histórico dos pixels em um arquivo de texto
+        # Saving pixel history to a text file
         with open('pixel_history.txt', 'w') as file:
             for array in pix_his[0]:
                 for value in array:
                     file.write(f"{value} ")
                 file.write("\n")
-        print("Histórico dos pixels salvo em 'pixel_history.txt'")
-
-        # Salvando o gráfico do histórico de intensidade do pixel escolhido
-        # plt.figure()
-        # plt.plot(range(self.first_image_number, self.last_image_number + 1), pix_his[0][self.pixel_index], label=f'Pixel {self.pixel_index + 1}')
-        # plt.xlabel('Número da Imagem')
-        # plt.ylabel('Intensidade')
-        # plt.title('Histórico de Intensidade de Pixel')
-        # plt.legend()
-        # plt.savefig('pixel_history_plot.png')
-        # plt.close()
-        # print("Gráfico do histórico dos pixels salvo em 'pixel_history_plot.png'")
-        
-        return pix_his
+        print("Pixel history saved in 'pixel_history.txt'")
