@@ -37,10 +37,10 @@ class PixelHistory:
 
         pix_his = [None] * 3
         if self.pixel_selection == 'a':
-            pix_his[0] = np.zeros((img_lin * img_row, num_images), dtype=np.float32)
+            pix_his[0] = np.zeros((img_lin * img_row, num_images), dtype=np.int32)
             pix_his[2] = [img_lin, img_row]
         elif self.pixel_selection == 'h':
-            pix_his[0] = np.zeros((img_row, num_images), dtype=np.float32)
+            pix_his[0] = np.zeros((img_row, num_images), dtype=np.int32)
             if self.selection_specifier == 'm':
                 pix_his[2] = round(img_lin / 2)
             elif self.selection_specifier == 'e':
@@ -48,7 +48,7 @@ class PixelHistory:
             else:
                 pix_his[2] = self.selection_specifier
         elif self.pixel_selection == 'v':
-            pix_his[0] = np.zeros((img_lin, num_images), dtype=np.float32)
+            pix_his[0] = np.zeros((img_lin, num_images), dtype=np.int32)
             if self.selection_specifier == 'm':
                 pix_his[2] = round(img_row / 2)
             elif self.selection_specifier == 'e':
@@ -60,7 +60,7 @@ class PixelHistory:
                 num_pix = round(img_lin * img_row * self.selection_specifier)
             else:
                 num_pix = self.selection_specifier
-            pix_his[0] = np.zeros((num_pix, num_images), dtype=np.float32)
+            pix_his[0] = np.zeros((num_pix, num_images), dtype=np.int32)
             pix_his[2] = np.column_stack((np.random.randint(0, img_lin, num_pix), np.random.randint(0, img_row, num_pix)))
         else:
             raise ValueError('thspcore: unknown pixel selection mode!')
@@ -69,7 +69,7 @@ class PixelHistory:
 
         for idx_img in range(num_images):
             image_file = full_file_pattern % (idx_img + self.first_image_number)
-            img_pix = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE).astype(np.float32)
+            img_pix = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE).astype(np.int32)
             if self.pixel_selection == 'a':
                 for idx_lin in range(img_lin):
                     aux_ini = img_row * idx_lin

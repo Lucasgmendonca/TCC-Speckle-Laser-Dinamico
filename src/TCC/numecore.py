@@ -8,7 +8,7 @@ class NumericalAnalysis:
 
     def numecore(self):
         num_res = 0
-        co_matr = np.zeros((256, 256))
+        co_matr = np.zeros((256, 256), dtype=np.int32)
 
         if self.method_selection > 5:
             raise ValueError('numecore: unknown method of analysis!')
@@ -17,7 +17,6 @@ class NumericalAnalysis:
         sts_row = self.pixel_history_data.shape[1]
 
         if self.method_selection < 3 or self.method_selection > 4:
-            co_matr = np.zeros((256, 256))
             for idx_lin in range(sts_lin):
                 for idx_row in range(sts_row - 1):
                     pix_now = round(self.pixel_history_data[idx_lin, idx_row])
