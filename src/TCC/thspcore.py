@@ -13,19 +13,15 @@ class PixelHistory:
         self.selection_specifier = selection_specifier
         
     def track_pixel_history(self):
-        if self.pixel_selection == 'a':
-            if self.selection_specifier is not None:
-                raise ValueError("For 'pixel_selection' = 'a', 'selection_specifier' must be None.")
-        elif self.pixel_selection == 'h':
-            if self.selection_specifier not in ['m', 'e'] and not (isinstance(self.selection_specifier, int) and 0 < self.selection_specifier < 361):
-                raise ValueError("For 'pixel_selection' = 'h', 'selection_specifier' must be 'm', 'e', or a number greater than 0 and less than 361.")
-        elif self.pixel_selection == 'v':
-            if self.selection_specifier not in ['m', 'e'] and not (isinstance(self.selection_specifier, int) and 0 < self.selection_specifier < 641):
-                raise ValueError("For 'pixel_selection' = 'v', 'selection_specifier' must be 'm', 'e', or a number greater than 0 and less than 641.")
-        elif self.pixel_selection == 'r':
-            if not (isinstance(self.selection_specifier, int) and 0 < self.selection_specifier < 230401):
-                raise ValueError("For 'pixel_selection' = 'r', 'selection_specifier' must be a number greater than 0 and less than 230401.")
-        else:
+        if self.pixel_selection == 'a' and self.selection_specifier is not None:
+            raise ValueError("For 'pixel_selection' = 'a', 'selection_specifier' must be None.")
+        if self.pixel_selection == 'h' and not (self.selection_specifier in ['m', 'e'] or (isinstance(self.selection_specifier, int) and 0 < self.selection_specifier < 361)):
+            raise ValueError("For 'pixel_selection' = 'h', 'selection_specifier' must be 'm', 'e', or a number between 1 and 360.")
+        if self.pixel_selection == 'v' and not (self.selection_specifier in ['m', 'e'] or (isinstance(self.selection_specifier, int) and 0 < self.selection_specifier < 641)):
+            raise ValueError("For 'pixel_selection' = 'v', 'selection_specifier' must be 'm', 'e', or a number between 1 and 640.")
+        if self.pixel_selection == 'r' and not (isinstance(self.selection_specifier, int) and 0 < self.selection_specifier < 230401):
+            raise ValueError("For 'pixel_selection' = 'r', 'selection_specifier' must be a number between 1 and 230400.")
+        if self.pixel_selection not in ['a', 'h', 'v', 'r']:
             raise ValueError(f"Unknown pixel selection mode: {self.pixel_selection}")
 
         full_file_pattern = os.path.join(self.image_path, self.file_name)
