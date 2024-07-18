@@ -25,7 +25,7 @@ O projeto é composto pelos seguintes módulos:
 1. Clone o repositório:
     ```bash
     git clone https://github.com/Lucasgmendonca/TCC-Speckle-Laser-Dinamico.git
-    cd <TCC-Speckle-Laser-Dinamico>
+    cd TCC-Speckle-Laser-Dinamico
     ```
 
 2. Instale as dependências necessárias:
