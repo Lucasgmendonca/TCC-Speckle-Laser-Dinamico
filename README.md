@@ -4,6 +4,14 @@
 
 O projeto "Speckle Laser Dinâmico" é uma aplicação em Python que utiliza bibliotecas como OpenCV para processar imagens e vídeos. A aplicação é dividida em quatro modos principais: visualização de vídeo, captura de imagens, análise de histórico de pixels e análise numérica dos dados capturados.
 
+## Funcionalidades
+O sistema oferece os seguintes modos de operação:
+
+- **Visualização de Vídeo (Preview)**: Exibe a pré-visualização do feed de vídeo da câmera em tempo real.
+- **Captura de Imagens (Captcore)**: Captura e salva imagens do feed de vídeo, permitindo especificar a região de interesse e intervalos de captura.
+- **Análise do Histórico de Pixels (Thspcore)**: Rastreia o histórico de pixels em imagens capturadas, com modos de seleção personalizáveis.
+- **Análise Numérica (Numecore)**: Realiza cálculos estatísticos e matemáticos sobre o histórico de pixels utilizando métodos como Momento de Inércia e Desvio Padrão.
+
 ## Estrutura do Projeto
 
 O projeto é composto pelos seguintes módulos:
@@ -16,8 +24,9 @@ O projeto é composto pelos seguintes módulos:
 ## Requisitos
 
 - Python 3.x
-- OpenCV
-- NumPy
+- Bibliotecas Python:
+    - OpenCV
+    - NumPy
 - Tkinter (geralmente incluído na instalação padrão do Python)
 
 ## Instalação
@@ -41,3 +50,10 @@ O projeto é composto pelos seguintes módulos:
 - **`numerical_result.txt`**: Resultado numérico.
 - **`co_occurrence_matrix.txt`**: Matriz de co-ocorrência.
 
+## Contribuição
+
+Este projeto é um trabalho acadêmico (TCC) e está aberto para contribuições. Caso tenha sugestões ou melhorias, sinta-se à vontade para abrir issues ou enviar pull requests.
+
+## Licença
+
+Este projeto está liberado para qualquer tipo de uso. Sinta-se livre para modificá-lo e utilizá-lo em suas próprias implementações.

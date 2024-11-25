@@ -19,7 +19,7 @@ class Main:
             preview = Preview()
             #preview.open_preview()
             preview.open_preview_configured()
-            output_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints' # Output Path
+            output_path = 'C:\\TCC\\Prints' # Output Path
             file_name = 'Img%03d.bmp' # Images file name Pattern
             first_image_number = 1 # First Image number
             last_image_number = 10 # Last Image number
@@ -34,17 +34,17 @@ class Main:
             preview.video_input_object.release()
 
         elif mode == 'thspcore':
-            image_path = 'C:\\Users\\lucas\\OneDrive\\Documentos\\TCC\\Prints' # Path to Images folder
+            image_path = 'C:\\TCC\\Prints' # Path to Images folder
             file_name = 'Img%03d.bmp' # Images file name Pattern
             first_image_number = 1 # First Image number
-            last_image_number = 10 # Last Image number
-            pixel_selection = 'v'   
+            last_image_number = 128 # Last Image number
+            pixel_selection = 'a'   
             # Pixel Selection mode:
             # 'a' - all pixels in the image
             # 'h' - all pixels in a line
             # 'v' - all pixels in a row
             # 'r' - random pixels in the image
-            selection_specific = 'm'
+            selection_specific = None
             # Pixel Selection Specifications
             # 'a' mode
             #     None - this parameter is disregarded in this mode
@@ -63,7 +63,7 @@ class Main:
 
         elif mode == 'numecore':
             pixel_history_data = np.loadtxt('pixel_history.txt')
-            method_selection = 1
+            method_selection = 2
             # Method Selection
             # '1' - Moment of Inertia (MoI)
             # '2' - Absolute Value of Diferences (AVD)
