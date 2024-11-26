@@ -1,3 +1,5 @@
+[Don't speak Portuguese? Click here](https://github.com/Lucasgmendonca/TCC-Speckle-Laser-Dinamico/blob/main/README-en.md)
+
 # Speckle Laser Dinâmico
 
 ## Descrição
